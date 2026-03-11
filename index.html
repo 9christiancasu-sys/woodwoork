@@ -2,163 +2,197 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Christian Hub - Gestionale</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Christian Hub Dynamic</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f3f4f6; font-family: sans-serif; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        body { background-color: #0f172a; font-family: sans-serif; color: white; }
+        .tab-content { display: none; padding-bottom: 100px; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
+        input { background: rgba(255, 255, 255, 0.1) !important; border: 1px solid rgba(255, 255, 255, 0.2) !important; color: white !important; padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 10px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body class="pb-20">
+<body>
 
-    <header class="bg-slate-800 text-white p-4 sticky top-0 z-50 flex justify-between items-center">
-        <h1 id="nav-title" class="font-bold text-lg">Christian Hub</h1>
-        <div id="total-badge" class="bg-green-600 px-3 py-1 rounded-full text-sm font-bold">€ 0.00</div>
+    <header class="p-6 sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-md border-b border-white/10 flex justify-between items-end">
+        <div>
+            <p class="text-slate-400 text-xs uppercase tracking-widest">Christian Hub</p>
+            <h1 class="text-2xl font-bold" id="nav-title">Dashboard</h1>
+        </div>
+        <div class="text-right">
+            <p class="text-slate-400 text-[10px] uppercase">Saldo Totale</p>
+            <p class="text-2xl font-mono font-bold text-green-400" id="total-badge">€ 0.00</p>
+        </div>
     </header>
 
     <div class="p-4">
-        
         <div id="tab-home" class="tab-content active">
-            <h2 class="text-xl font-bold mb-4 text-slate-700">Cosa vuoi gestire oggi?</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="openTab('tab-legno', 'Laboratorio Legno')" class="bg-amber-100 p-6 rounded-2xl border-2 border-amber-200 flex flex-col items-center">
-                    <span class="text-4xl mb-2">🪵</span>
-                    <span class="font-bold text-amber-800">LEGNO</span>
-                </button>
-                <button onclick="openTab('tab-spese', 'Entrate/Uscite')" class="bg-blue-100 p-6 rounded-2xl border-2 border-blue-200 flex flex-col items-center">
-                    <span class="text-4xl mb-2">💸</span>
-                    <span class="font-bold text-blue-800">BILANCIO</span>
-                </button>
+            <div id="grid-categorie" class="grid grid-cols-1 gap-4 mt-4">
                 </div>
-            
-            <div class="mt-8 card bg-slate-50">
-                <h3 class="font-bold text-slate-500 mb-2 uppercase text-xs">Riepilogo Totale</h3>
-                <p id="home-stats" class="text-slate-700">Caricamento dati...</p>
-            </div>
         </div>
 
-        <div id="tab-legno" class="tab-content">
-            <div class="card bg-amber-50">
-                <h3 class="font-bold text-amber-800 mb-4">Nuovo Progetto Legno</h3>
-                <input type="text" id="legno-nome" placeholder="Nome progetto (es. Tavolo)" class="w-full mb-2 p-2 rounded border">
-                <input type="number" id="legno-guadagno" placeholder="Guadagno (€)" class="w-full mb-2 p-2 rounded border">
-                <input type="number" id="legno-costi" placeholder="Costi materiali (€)" class="w-full mb-4 p-2 rounded border">
-                <button onclick="salvaLegno()" class="w-full bg-amber-600 text-white py-3 rounded-xl font-bold">AGGIUNGI PROGETTO</button>
+        <div id="tab-categoria" class="tab-content">
+            <div class="glass-card">
+                <h3 id="cat-form-title" class="font-bold mb-4 flex items-center text-blue-400">Nuova Voce</h3>
+                <input type="text" id="item-nome" placeholder="Descrizione">
+                <input type="number" id="item-guadagno" placeholder="Entrata / Manodopera (€)">
+                <input type="number" id="item-costi" placeholder="Uscita / Costi pezzi (€)">
+                <button onclick="salvaVoce()" class="w-full bg-blue-600 py-4 rounded-xl font-bold mt-2 shadow-lg">SALVA</button>
             </div>
-            <div id="lista-legno"></div>
+            <div id="lista-voci" class="space-y-3"></div>
         </div>
 
-        <div id="tab-spese" class="tab-content">
-            <div class="card bg-blue-50">
-                <h3 class="font-bold text-blue-800 mb-4">Movimento Generico</h3>
-                <input type="text" id="spesa-desc" placeholder="Descrizione (es. Benzina, Spesa)" class="w-full mb-2 p-2 rounded border">
-                <input type="number" id="spesa-importo" placeholder="Importo (€)" class="w-full mb-2 p-2 rounded border">
-                <select id="spesa-tipo" class="w-full mb-4 p-2 rounded border">
-                    <option value="entrata">Entrata (+)</option>
-                    <option value="uscita">Uscita (-)</option>
-                </select>
-                <button onclick="salvaGenerale()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">REGISTRA</button>
+        <div id="tab-settings" class="tab-content">
+            <div class="glass-card">
+                <h3 class="text-orange-400 font-bold mb-4">Aggiungi Nuova Categoria</h3>
+                <input type="text" id="new-cat-nome" placeholder="Nome (es. Cane, Casa)">
+                <input type="text" id="new-cat-emoji" placeholder="Emoji (es. 🐕, 🏠)">
+                <button onclick="aggiungiCategoria()" class="w-full bg-orange-600 py-3 rounded-xl font-bold mt-2">CREA CATEGORIA</button>
             </div>
-            <div id="lista-generale"></div>
+            <div id="lista-categorie-settings" class="space-y-2">
+                </div>
         </div>
-
     </div>
 
-    <nav class="fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around p-3 shadow-lg">
-        <button onclick="openTab('tab-home', 'Christian Hub')" class="flex flex-col items-center text-slate-500">
-            <span class="text-xl">🏠</span>
-            <span class="text-[10px]">Home</span>
-        </button>
-        <button onclick="openTab('tab-legno', 'Legno')" class="flex flex-col items-center text-slate-500">
-            <span class="text-xl">🪵</span>
-            <span class="text-[10px]">Legno</span>
-        </button>
-        <button onclick="openTab('tab-spese', 'Bilancio')" class="flex flex-col items-center text-slate-500">
-            <span class="text-xl">💸</span>
-            <span class="text-[10px]">Bilancio</span>
-        </button>
+    <nav class="fixed bottom-0 w-full bg-[#1e293b]/90 backdrop-blur-md border-t border-white/10 flex justify-around p-4 shadow-2xl">
+        <button onclick="openHome()" class="text-2xl">🏠</button>
+        <button onclick="openTab('tab-settings', 'Impostazioni')" class="text-2xl">⚙️</button>
     </nav>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('hub_data')) || { legno: [], generale: [] };
+        // Dati iniziali di default
+        let defaultCats = [
+            { id: 'legno', nome: 'Legno', emoji: '🪵', colore: 'amber' },
+            { id: 'pc', nome: 'Riparazione PC', emoji: '💻', colore: 'blue' }
+        ];
 
-        function openTab(tabId, title) {
+        let categorie = JSON.parse(localStorage.getItem('hub_categorie')) || defaultCats;
+        let movimenti = JSON.parse(localStorage.getItem('hub_movimenti')) || [];
+        let categoriaAttiva = '';
+
+        function openHome() {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+            document.getElementById('tab-home').classList.add('active');
+            document.getElementById('nav-title').innerText = 'Dashboard';
+            renderHome();
+        }
+
+        function openTab(id, title) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             document.getElementById('nav-title').innerText = title;
-            renderAll();
+            if(id === 'tab-settings') renderSettings();
         }
 
-        function salvaLegno() {
-            const nome = document.getElementById('legno-nome').value;
-            const guadagno = parseFloat(document.getElementById('legno-guadagno').value) || 0;
-            const costi = parseFloat(document.getElementById('legno-costi').value) || 0;
+        function openCategoria(id) {
+            categoriaAttiva = id;
+            const cat = categorie.find(c => c.id === id);
+            openTab('tab-categoria', cat.nome);
+            document.getElementById('cat-form-title').innerText = `Nuova voce ${cat.emoji}`;
+            renderVoci();
+        }
 
+        function aggiungiCategoria() {
+            const nome = document.getElementById('new-cat-nome').value;
+            const emoji = document.getElementById('new-cat-emoji').value || '📁';
             if(nome) {
-                db.legno.push({ nome, guadagno, costi, data: new Date().toLocaleDateString() });
-                salvaDB();
-                document.getElementById('legno-nome').value = '';
-                document.getElementById('legno-guadagno').value = '';
-                document.getElementById('legno-costi').value = '';
+                const id = nome.toLowerCase().replace(/\s/g, '');
+                categorie.push({ id, nome, emoji });
+                localStorage.setItem('hub_categorie', JSON.stringify(categorie));
+                document.getElementById('new-cat-nome').value = '';
+                document.getElementById('new-cat-emoji').value = '';
+                renderSettings();
             }
         }
 
-        function salvaGenerale() {
-            const desc = document.getElementById('spesa-desc').value;
-            const importo = parseFloat(document.getElementById('spesa-importo').value) || 0;
-            const tipo = document.getElementById('spesa-tipo').value;
-
-            if(desc && importo) {
-                db.generale.push({ desc, importo: tipo === 'uscita' ? -importo : importo, data: new Date().toLocaleDateString() });
-                salvaDB();
-                document.getElementById('spesa-desc').value = '';
-                document.getElementById('spesa-importo').value = '';
+        function eliminaCategoria(id) {
+            if(confirm("Eliminare la categoria e tutti i suoi dati?")) {
+                categorie = categorie.filter(c => c.id !== id);
+                movimenti = movimenti.filter(m => m.catId !== id);
+                localStorage.setItem('hub_categorie', JSON.stringify(categorie));
+                localStorage.setItem('hub_movimenti', JSON.stringify(movimenti));
+                renderSettings();
             }
         }
 
-        function salvaDB() {
-            localStorage.setItem('hub_data', JSON.stringify(db));
-            renderAll();
+        function salvaVoce() {
+            const nome = document.getElementById('item-nome').value;
+            const entrata = parseFloat(document.getElementById('item-guadagno').value) || 0;
+            const uscita = parseFloat(document.getElementById('item-costi').value) || 0;
+            
+            if(nome) {
+                movimenti.push({
+                    catId: categoriaAttiva,
+                    nome,
+                    valore: entrata - uscita,
+                    data: new Date().toLocaleDateString('it-IT')
+                });
+                localStorage.setItem('hub_movimenti', JSON.stringify(movimenti));
+                document.getElementById('item-nome').value = '';
+                document.getElementById('item-guadagno').value = '';
+                document.getElementById('item-costi').value = '';
+                renderVoci();
+            }
         }
 
-        function renderAll() {
-            // Calcolo Totale Globale
-            const totLegno = db.legno.reduce((acc, curr) => acc + (curr.guadagno - curr.costi), 0);
-            const totGen = db.generale.reduce((acc, curr) => acc + curr.importo, 0);
-            const totale = totLegno + totGen;
+        function renderHome() {
+            const grid = document.getElementById('grid-categorie');
+            let totaleGlobale = 0;
+            
+            grid.innerHTML = categorie.map(cat => {
+                const saldoCat = movimenti.filter(m => m.catId === cat.id).reduce((acc, curr) => acc + curr.valore, 0);
+                totaleGlobale += saldoCat;
+                return `
+                    <button onclick="openCategoria('${cat.id}')" class="glass-card flex items-center justify-between border-l-4 border-blue-500">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-4">${cat.emoji}</span>
+                            <div class="text-left">
+                                <p class="font-bold text-lg">${cat.nome.toUpperCase()}</p>
+                                <p class="text-xs text-slate-400 text-green-400">€ ${saldoCat.toFixed(2)}</p>
+                            </div>
+                        </div>
+                        <span class="text-slate-600">➔</span>
+                    </button>
+                `;
+            }).join('');
+            document.getElementById('total-badge').innerText = `€ ${totaleGlobale.toFixed(2)}`;
+        }
 
-            document.getElementById('total-badge').innerText = `€ ${totale.toFixed(2)}`;
-            document.getElementById('home-stats').innerHTML = `
-                Legno: <span class="font-bold">€ ${totLegno.toFixed(2)}</span><br>
-                Bilancio: <span class="font-bold">€ ${totGen.toFixed(2)}</span>
-            `;
-
-            // Liste
-            const listaLegno = document.getElementById('lista-legno');
-            listaLegno.innerHTML = db.legno.map((p, i) => `
-                <div class="card flex justify-between items-center">
-                    <div><p class="font-bold">${p.nome}</p><p class="text-xs text-slate-400">${p.data}</p></div>
-                    <div class="text-right"><p class="text-green-600 font-bold">+€ ${(p.guadagno - p.costi).toFixed(2)}</p></div>
-                </div>
-            `).reverse().join('');
-
-            const listaGen = document.getElementById('lista-generale');
-            listaGen.innerHTML = db.generale.map((p, i) => `
-                <div class="card flex justify-between items-center">
-                    <div><p class="font-bold">${p.desc}</p><p class="text-xs text-slate-400">${p.data}</p></div>
-                    <div class="text-right">
-                        <p class="${p.importo >= 0 ? 'text-green-600' : 'text-red-600'} font-bold">
-                            ${p.importo >= 0 ? '+' : ''}€ ${p.importo.toFixed(2)}
-                        </p>
+        function renderVoci() {
+            const lista = document.getElementById('lista-voci');
+            const filtered = movimenti.filter(m => m.catId === categoriaAttiva);
+            lista.innerHTML = filtered.map((m, i) => `
+                <div class="glass-card flex justify-between items-center py-3">
+                    <div onclick="eliminaVoce(${movimenti.indexOf(m)})">
+                        <p class="font-bold text-sm">${m.nome}</p>
+                        <p class="text-[10px] text-slate-500">${m.data}</p>
                     </div>
+                    <p class="font-bold ${m.valore >= 0 ? 'text-green-400' : 'text-red-400'}">€ ${m.valore.toFixed(2)}</p>
                 </div>
             `).reverse().join('');
         }
 
-        renderAll();
+        function eliminaVoce(index) {
+            if(confirm("Eliminare questa voce?")) {
+                movimenti.splice(index, 1);
+                localStorage.setItem('hub_movimenti', JSON.stringify(movimenti));
+                renderVoci();
+            }
+        }
+
+        function renderSettings() {
+            const lista = document.getElementById('lista-categorie-settings');
+            lista.innerHTML = categorie.map(cat => `
+                <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                    <span>${cat.emoji} ${cat.nome}</span>
+                    <button onclick="eliminaCategoria('${cat.id}')" class="text-red-500 text-xs">ELIMINA</button>
+                </div>
+            `).join('');
+        }
+
+        renderHome();
     </script>
 </body>
 </html>
